@@ -43,7 +43,7 @@ int sorted_char_binary_search(char (*arr)[], int size, char element) {
     return -1;
 }
 
-void bubble_sort_char(char *arr, int length, int n) {
+char* bubble_sort_char(char *arr, int length, int n) {
     char *tempArr = malloc(n * sizeof(char[length]));
     char tempString[length]; 
     char prevString[length];
@@ -51,33 +51,28 @@ void bubble_sort_char(char *arr, int length, int n) {
     
     int j = 0;
     memcpy(tempArr, arr, n * length);
-    printf("\ntempArr: %s", tempArr);
-    // int count = length * n;
-    // printf("\r\n");
-    // while (count--){
-    //     printf("%c",favColor+1);
-    // }
-    printf("\r\n");
+
     while(j != (n - 1)) {
         for (int i=j+1;i<n;i++) { 
             strcpy(prevString, tempArr + (j * length));
             strcpy(currString, tempArr + (i * length));
-            // printf("\n %s and %s", prevString, currString);
             if (strcmp(prevString, currString) > 0) {
                 // Swap char array
                 strcpy(tempString, prevString); 
-                strcpy(tempArr + j, currString); 
-                strcpy(tempArr + i, tempString); 
+                strcpy(tempArr + (j * length), currString); 
+                strcpy(tempArr + (i * length), tempString); 
             }
         }
         j++;
     }
 
-    int x = 0;
-    while(x != n) {
-        printf("\n %s", tempArr + (x * length));   
-        x++; 
-    }
+    // Check if sorted. Comment out for debugging
+    // int x = 0;
+    // while(x != n) {
+    //     printf("\n %s", tempArr + (x * length));   
+    //     x++; 
+    // }
+    return tempArr;
 }
 
 void bubble_sort_users() { 
@@ -204,8 +199,12 @@ void delete_user() {
         scanf("%s", keyword);
         
         printf("\nSearching for keyword(s): %s", keyword);
-        bubble_sort_char(favColor, FAVCOLOR_LENGTH, n);
-        // printf("\nSorted favColor: %s", sortedFavColor);
+
+        char *sortedFavColor = bubble_sort_char(favColor, FAVCOLOR_LENGTH, n);
+        char *sortedLastName = bubble_sort_char(lastName, LNAME_LENGTH, n);
+
+        printf("\nSorted favColor: %s", sortedFavColor);
+        printf("\nSroted lastName: %s", sortedLastName);
     }
 }
 
@@ -260,13 +259,6 @@ int main() {
     favColor = malloc(recordSize * sizeof(char[FAVCOLOR_LENGTH]));
     age = malloc(recordSize * sizeof(int));
 
-    free(firstName);
-    free(lastName);
-    free(birthday);
-    free(gender);
-    free(favColor);
-    free(age);
-
     input_sample_data();
 
     while (command != 0) {
@@ -291,6 +283,13 @@ int main() {
             delete_user();
         } else if (command == 4) {
             bubble_sort_users();
+        } else if (command == 0) {
+            free(firstName);
+            free(lastName);
+            free(birthday);
+            free(gender);
+            free(favColor);
+            free(age);
         }
     }
     return 0;
