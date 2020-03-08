@@ -18,19 +18,17 @@ char (*gender)[GENDER_LENGTH];
 char (*favColor)[FAVCOLOR_LENGTH];
 int *age;
 
-char firstName2[10][FNAME_LENGTH];
-
 int n = 0;
 int command = -1;
 
 int sorted_number_binary_search(int arr[], int size, int element) {
     int start = 0;
     int end = size - 1;
-    while(start<=end) {
+    while (start <= end) {
         int mid = (start + end) / 2;
-        if(arr[mid] == element) {
+        if (arr[mid] == element) {
             return mid;
-        } else if(element < arr[mid]) {
+        } else if (element < arr[mid]) {
             end = mid - 1;
         } else {
             start = mid + 1;
@@ -39,7 +37,28 @@ int sorted_number_binary_search(int arr[], int size, int element) {
     return -1;
 }
 
-int sorted_char_binary_search(char (*arr)[], int size, char element) {
+int sorted_char_binary_search(char *arr, int length, int size, char *element) {
+    int start = 0;
+    int mid = 0;
+    int end = size -1;
+    char tempValue[length];
+
+    while (start <= end) {
+        mid = (start + end) / 2;
+        memcpy(tempValue, arr + (mid * length), length);
+        printf("\nsorted_char_binary: %s to %s", tempValue, element);
+
+        int result = strcmp(tempValue, element);
+        if (result == 0) {
+            printf("\nMatched element %s", element);
+            return mid;
+        } else if (result > 0) {
+            end = mid - 1;
+        } else {
+            start = mid + 1;
+        }
+    }
+    printf("\nHas no matched :(");
     return -1;
 }
 
@@ -198,13 +217,13 @@ void delete_user() {
         printf("\nEnter keyword, or else type exit: ");
         scanf("%s", keyword);
         
-        printf("\nSearching for keyword(s): %s", keyword);
+        printf("\n\nSearching for keyword(s): %s", keyword);
 
         char *sortedFavColor = bubble_sort_char(favColor, FAVCOLOR_LENGTH, n);
-        char *sortedLastName = bubble_sort_char(lastName, LNAME_LENGTH, n);
+        int foundIndex = sorted_char_binary_search(sortedFavColor, FAVCOLOR_LENGTH, n, keyword);
+        // char *sortedLastName = bubble_sort_char(lastName, LNAME_LENGTH, n);
 
-        printf("\nSorted favColor: %s", sortedFavColor);
-        printf("\nSroted lastName: %s", sortedLastName);
+        printf("\n");
     }
 }
 
