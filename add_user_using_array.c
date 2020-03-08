@@ -18,6 +18,8 @@ char (*gender)[GENDER_LENGTH];
 char (*favColor)[FAVCOLOR_LENGTH];
 int *age;
 
+char firstName2[10][FNAME_LENGTH];
+
 int n = 0;
 int command = -1;
 
@@ -41,29 +43,40 @@ int sorted_char_binary_search(char (*arr)[], int size, char element) {
     return -1;
 }
 
-void bubble_sort_char(char arr[], int n) {
-    char tempArr[30];
-    // char tempArr2 = malloc(recordSize * sizeof(char[30]));
+void bubble_sort_char(char *arr, int length, int n) {
+    char *tempArr = malloc(n * sizeof(char[length]));
+    char tempString[length]; 
+    char prevString[length];
+    char currString[length];
     
-    int counter=0;
-    while(arr[counter] != '\0') {
-        printf("\nbubble_sort_char: %s", *arr + 1);
-        counter++;
+    int j = 0;
+    memcpy(tempArr, arr, n * length);
+    printf("\ntempArr: %s", tempArr);
+    // int count = length * n;
+    // printf("\r\n");
+    // while (count--){
+    //     printf("%c",favColor+1);
+    // }
+    printf("\r\n");
+    while(j != (n - 1)) {
+        for (int i=j+1;i<n;i++) { 
+            strcpy(prevString, tempArr + (j * length));
+            strcpy(currString, tempArr + (i * length));
+            // printf("\n %s and %s", prevString, currString);
+            if (strcmp(prevString, currString) > 0) {
+                // Swap char array
+                strcpy(tempString, prevString); 
+                strcpy(tempArr + j, currString); 
+                strcpy(tempArr + i, tempString); 
+            }
+        }
+        j++;
     }
-    printf("\nbubble_sort_char: %s", arr + 1);
-    // printf("\bubble_sort_char: %s", arr[1]);
-    for (int j=0; j<n-1; j++) {
-        // printf("\nbubble_sort_char: %d, n = %d", j, n);
-        for (int i=j+1; i<n; i++) {
-            // printf("\nbubble_sort_char: %d and %d", j, i);
-            // printf("\nbubble_sort_char: %s to %s", arr[j], arr[i]);
-            // if (strcmp(arr[j], arr[i]) > 0) {
-            //     // Swap char array
-            //     strcpy(tempArr2, arr[j]); 
-            //     strcpy(tempArr[j], arr[i]); 
-            //     strcpy(tempArr[i], tempArr2); 
-            // }
-        } 
+
+    int x = 0;
+    while(x != n) {
+        printf("\n %s", tempArr + (x * length));   
+        x++; 
     }
 }
 
@@ -178,6 +191,7 @@ void add_user() {
         if (tmpFname != NULL) {
             firstName = tmpFname;
         }
+        free(tmpFname);
     }
 }
 
@@ -190,8 +204,7 @@ void delete_user() {
         scanf("%s", keyword);
         
         printf("\nSearching for keyword(s): %s", keyword);
-        printf("\nFavColors: %s", favColor[1]);
-        bubble_sort_char(favColor, n);
+        bubble_sort_char(favColor, FAVCOLOR_LENGTH, n);
         // printf("\nSorted favColor: %s", sortedFavColor);
     }
 }
@@ -209,13 +222,33 @@ void input_sample_data() {
 
     userId[1] = 1002;
     strcpy(firstName[1], "Ali baba");
-    strcpy(lastName[1], "Diente");
+    strcpy(lastName[1], "Alvarez");
     strcpy(birthday[1], "4/8/1998");
     strcpy(gender[1], "F");
     strcpy(favColor[1], "blue");
     age[1] = 20;
 
     n = 2;
+
+    userId[2] = 1003;
+    strcpy(firstName[2], "Will");
+    strcpy(lastName[2], "Johnson");
+    strcpy(birthday[2], "2/9/1965");
+    strcpy(gender[2], "F");
+    strcpy(favColor[2], "white");
+    age[2] = 30;
+
+    n = 3;
+
+    userId[3] = 1004;
+    strcpy(firstName[3], "Freud");
+    strcpy(lastName[3], "Hill");
+    strcpy(birthday[3], "1/2/1989");
+    strcpy(gender[3], "M");
+    strcpy(favColor[3], "magenta");
+    age[3] = 65;
+
+    n = 4;
 }
 
 int main() {
@@ -227,6 +260,13 @@ int main() {
     favColor = malloc(recordSize * sizeof(char[FAVCOLOR_LENGTH]));
     age = malloc(recordSize * sizeof(int));
 
+    free(firstName);
+    free(lastName);
+    free(birthday);
+    free(gender);
+    free(favColor);
+    free(age);
+
     input_sample_data();
 
     while (command != 0) {
@@ -235,6 +275,7 @@ int main() {
         printf("\n 1 - Add user");
         printf("\n 2 - Display users");
         printf("\n 3 - Delete user");
+        printf("\n 4 - Sort");
         printf("\n 0 - Exit");
         printf("\n--------------------");
 
@@ -248,14 +289,9 @@ int main() {
             display_users();
         } else if (command == 3) {
             delete_user();
+        } else if (command == 4) {
+            bubble_sort_users();
         }
-
-        // free(firstName);
-        // free(lastName);
-        // free(birthday);
-        // free(gender);
-        // free(favColor);
-        // free(age);
     }
     return 0;
 }
