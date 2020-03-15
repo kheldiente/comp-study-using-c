@@ -187,10 +187,6 @@ void display_user(int index) {
     strcpy(tempFavColor, favColor[index]);
     tempAge = age[index];
 
-    printf("\n\n----------------------------------------\n");
-    printf("               Result - Index: %d             ", index);
-    printf("\n----------------------------------------\n");
-
     printf("\n-------------------------");
     printf("\nUser id: %d", tempUserId);
     printf("\nFirst name: %s", strtok(tempFirstName, "\n"));
