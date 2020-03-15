@@ -431,7 +431,7 @@ int main() {
     favColor = malloc(recordSize * sizeof(char[FAVCOLOR_LENGTH]));
     age = malloc(recordSize * sizeof(int));
 
-    input_sample_data();
+    // input_sample_data();
 
     while (command != 0) {
         printf("\n--------------------");
