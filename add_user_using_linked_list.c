@@ -227,6 +227,54 @@ void display_users() {
   }
 }
 
+void search_user() {
+  char keyword[30];
+  char tempFname[FNAME_LENGTH];
+  char tempLname[LNAME_LENGTH];
+  char tempBday[BDAY_LENGTH];
+  char tempGender[GENDER_LENGTH];
+  char tempFavColor[FAVCOLOR_LENGTH];
+  int tempAge;
+
+  while (strcmp(keyword, "exit") != 0) {
+    printf("\Enter keyword or else type exit: ");
+    scanf("%s", keyword);
+
+    tempNode = firstNode;
+    
+    while (tempNode != 0) {
+      strcpy(tempFname, tempNode->firstName);
+      strcpy(tempLname, tempNode->lastName);
+      strcpy(tempBday, tempNode->birthday);
+      strcpy(tempGender, tempNode->gender);
+      strcpy(tempFavColor, tempNode->favColor);
+      tempAge = tempNode->age;
+
+      strtok(tempFname, "\n");
+      strtok(tempLname,"\n");
+      strtok(tempBday, "\n");
+      strtok(tempGender, "\n");
+      strtok(tempFavColor, "\n");
+
+      int resFname = strcmp(tempFname, keyword);
+      int resLname = strcmp(tempLname, keyword);
+      int resBday = strcmp(tempBday, keyword);
+      int resGender = strcmp(tempGender, keyword);
+      int resFavColor = strcmp(tempFavColor, keyword);
+
+      if (resFname == 0
+      || resLname == 0
+      || resBday == 0
+      || resGender == 0
+      || resFavColor == 0) {
+        display_user(tempNode);
+        break;
+      }
+      tempNode = tempNode -> next;
+    }
+  }
+}
+
 int count_users() {
   int count = 0;
   tempNode = firstNode;
@@ -234,7 +282,6 @@ int count_users() {
     count++;
     tempNode = tempNode -> next;
   }
-  printf("\nNo Of Items In Linked List : %d\n", count);
   return count;
 }
 
@@ -268,6 +315,7 @@ int main() {
             update_user();
             break;
         case 4:
+            search_user();
             break;
         case 5:
             display_users();
