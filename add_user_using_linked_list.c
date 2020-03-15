@@ -1,156 +1,278 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define FNAME_LENGTH 30
+#define LNAME_LENGTH 30
+#define BDAY_LENGTH 9
+#define GENDER_LENGTH 2
+#define FAVCOLOR_LENGTH 15
+
 struct node {
-  int value;
+  char firstName[FNAME_LENGTH];
+  char lastName[LNAME_LENGTH];
+  char birthday[BDAY_LENGTH];
+  char gender[GENDER_LENGTH];
+  char favColor[FAVCOLOR_LENGTH];
+  int age;
   struct node *next;
 };
 
-void insert();
-void display();
-void delete();
-int count();
-
 typedef struct node DATA_NODE;
 
-DATA_NODE *head_node, *first_node, *temp_node = 0, *prev_node, next_node;
-int data;
+DATA_NODE *headNode, *firstNode, *tempNode = 0, *prevNode, nextNode;
 
 int n = 0;
 int command = -1;
 
-void insert() {
-  printf("\nEnter Element for Insert Linked List : \n");
-  scanf("%d", &data);
+void insert_user() {
+  char fName[FNAME_LENGTH];
+  char lName[LNAME_LENGTH];
+  char bday[BDAY_LENGTH];
+  char gender[GENDER_LENGTH];
+  char favColor[FAVCOLOR_LENGTH];
+  int age;
 
-  temp_node = (DATA_NODE *) malloc(sizeof (DATA_NODE));
+  printf("\n\n----------Input user----------\n");
 
-  temp_node->value = data;
+  printf("First name: ");
+  fgets(fName, sizeof(fName), stdin);
 
-  if (first_node == 0) {
-    first_node = temp_node;
+  printf("Last name: ");
+  fgets(lName, sizeof(lName), stdin);
+
+  printf("Birthday (eg: 05/02/1992): ");
+  scanf("%s", bday);
+
+  printf("Age: ");
+  scanf("%d", &age);
+
+  printf("Gender (M/F): ");
+  scanf("%s", gender);
+  getchar();
+
+  printf("Favorite color (eg: blue, yellow, midnight blue, etc.): ");
+  fgets(favColor, sizeof(favColor), stdin);
+
+  tempNode = (DATA_NODE *) malloc(sizeof (DATA_NODE));
+
+  strcpy(tempNode->firstName, fName);
+  strcpy(tempNode->lastName, lName);
+  strcpy(tempNode->birthday, bday);
+  strcpy(tempNode->gender, gender);
+  strcpy(tempNode->favColor, favColor);
+  tempNode->age = age;
+
+  if (firstNode == 0) {
+    firstNode = tempNode;
   } else {
-    head_node->next = temp_node;
+    headNode->next = tempNode;
   }
-  temp_node->next = 0;
-  head_node = temp_node;
+  tempNode->next = 0;
+  headNode = tempNode;
   fflush(stdin);
 }
 
-void delete() {
-  int countvalue, pos, i = 0;
-  countvalue = count();
-  temp_node = first_node;
-  printf("\nDisplay Linked List : \n");
+void update_user() {
+  char keyword[30];
+  char value[30];
+  int attribute = -1;
+  
+  char tempFname[FNAME_LENGTH];
+  char tempLname[LNAME_LENGTH];
+  char tempBday[BDAY_LENGTH];
+  char tempGender[GENDER_LENGTH];
+  char tempFavColor[FAVCOLOR_LENGTH];
+  int tempAge;
 
-  printf("\nEnter Position for Delete Element : \n");
-  scanf("%d", &pos);
+  tempNode = firstNode;
 
-  if (pos > 0 && pos <= countvalue) {
-    if (pos == 1) {
-      temp_node = temp_node -> next;
-      first_node = temp_node;
-      printf("\nDeleted Successfully \n\n");
-    } else {
-      while (temp_node != 0) {
-        if (i == (pos - 1)) {
-          prev_node->next = temp_node->next;
-          if(i == (countvalue - 1))
-          {
-			  head_node = prev_node;
-		  }
-          printf("\nDeleted Successfully \n\n");
-          break;
-        } else {
-          i++;
-          prev_node = temp_node;
-          temp_node = temp_node -> next;
+  printf("\nEnter keyword, or else type exit: ");
+  scanf("%s", keyword);
+  
+  printf("\nSearching for keyword(s): %s", keyword);
+  while (tempNode != 0) {
+    strcpy(tempFname, tempNode->firstName);
+    strcpy(tempLname, tempNode->lastName);
+    strcpy(tempBday, tempNode->birthday);
+    strcpy(tempGender, tempNode->gender);
+    strcpy(tempFavColor, tempNode->favColor);
+    tempAge = tempNode->age;
+
+    strtok(tempFname, "\n");
+    strtok(tempLname,"\n");
+    strtok(tempBday, "\n");
+    strtok(tempGender, "\n");
+    strtok(tempFavColor, "\n");
+
+    int resFname = strcmp(tempFname, keyword);
+    int resLname = strcmp(tempLname, keyword);
+    int resBday = strcmp(tempBday, keyword);
+    int resGender = strcmp(tempGender, keyword);
+    int resFavColor = strcmp(tempFavColor, keyword);
+
+    if (resFname == 0
+    || resLname == 0
+    || resBday == 0
+    || resGender == 0
+    || resFavColor == 0) {
+      
+      printf("\nAttribute number");
+      printf("\n 1 - First name");
+      printf("\n 2 - Last name");
+      printf("\n 3 - Birthday (eg: 05/02/1992)");
+      printf("\n 4 - Gender (M/F)");
+      printf("\n 5 - Favorite color (eg: blue, yellow, midnight blue, etc.)");
+
+      printf("\nEnter attribute number: ");
+      scanf("%d", &attribute);
+      printf("Enter new value: ");
+      scanf("%s", value);
+
+      if (attribute == 1) {
+          strcpy(tempNode->firstName, value);
+      } else if (attribute == 2) {
+          strcpy(tempNode->lastName, value);
+      } else if (attribute == 3) {
+          strcpy(tempNode->birthday, value);
+      } else if (attribute == 4) {
+          strcpy(tempNode->gender, value);
+      } else if (attribute == 5) {
+          strcpy(tempNode->favColor, value);
+      }
+      break;
+    }
+    tempNode = tempNode -> next;
+  }
+}
+
+void delete_user() {
+  int i = 0;
+  int pos = 1;
+  int countValue = count_users();
+  char keyword[30];
+  char yes[2] = "n";
+  
+  char tempFname[FNAME_LENGTH];
+  char tempLname[LNAME_LENGTH];
+  char tempBday[BDAY_LENGTH];
+  char tempGender[GENDER_LENGTH];
+  char tempFavColor[FAVCOLOR_LENGTH];
+  int tempAge;
+
+  tempNode = firstNode;
+
+  printf("\nEnter keyword, or else type exit: ");
+  scanf("%s", keyword);
+
+  while (tempNode != 0) {
+    strcpy(tempFname, tempNode->firstName);
+    strcpy(tempLname, tempNode->lastName);
+    strcpy(tempBday, tempNode->birthday);
+    strcpy(tempGender, tempNode->gender);
+    strcpy(tempFavColor, tempNode->favColor);
+    tempAge = tempNode->age;
+
+    strtok(tempFname, "\n");
+    strtok(tempLname,"\n");
+    strtok(tempBday, "\n");
+    strtok(tempGender, "\n");
+    strtok(tempFavColor, "\n");
+
+    int resFname = strcmp(tempFname, keyword);
+    int resLname = strcmp(tempLname, keyword);
+    int resBday = strcmp(tempBday, keyword);
+    int resGender = strcmp(tempGender, keyword);
+    int resFavColor = strcmp(tempFavColor, keyword);
+
+    if (resFname == 0
+    || resLname == 0
+    || resBday == 0
+    || resGender == 0
+    || resFavColor == 0) {
+      if (i == 0) {
+        tempNode = tempNode->next;
+        firstNode = tempNode;
+      } else {
+        prevNode->next = tempNode->next;
+        if (i == (countValue - 1)) {
+          headNode = prevNode;
         }
       }
+      printf("\nDeleted Successfully \n\n");
+      break;
+    } else {
+      i++;
+      prevNode = tempNode;
+      tempNode = tempNode -> next;
     }
-  } else
-    printf("\nInvalid Position \n\n");
-}
-
-void display() {
-  int count = 0;
-  temp_node = first_node;
-  printf("\nDisplay Linked List : \n");
-  while (temp_node != 0) {
-    printf("# %d # ", temp_node->value);
-    count++;
-    temp_node = temp_node -> next;
   }
-  printf("\nNo Of Items In Linked List : %d\n", count);
 }
 
-int count() {
+void display_user(DATA_NODE *node) {
+  printf("\n-------------------------");
+  printf("\nFirst name: %s", node->firstName);
+  printf("\Last name: %s", node->lastName);
+  printf("\nBirthday: %s", node->birthday);
+  printf("\nAge: %d", node->age);
+  printf("\nGender: %s", node->gender);
+  printf("\nFavorite color: %s", node->favColor);
+  printf("\n-------------------------\n\n");
+}
+
+void display_users() {
+  tempNode = firstNode;
+  while (tempNode != 0) {
+    display_user(tempNode);
+    tempNode = tempNode -> next;
+  }
+}
+
+int count_users() {
   int count = 0;
-  temp_node = first_node;
-  while (temp_node != 0) {
+  tempNode = firstNode;
+  while (tempNode != 0) {
     count++;
-    temp_node = temp_node -> next;
+    tempNode = tempNode -> next;
   }
   printf("\nNo Of Items In Linked List : %d\n", count);
   return count;
 }
 
 int main() {
-    // while (command != 0) {
-    //     printf("\n--------------------");
-    //     printf("\nCommands:");
-    //     printf("\n 1 - Add user");
-    //     printf("\n 2 - Delete user");
-    //     printf("\n 3 - Update user");
-    //     printf("\n 4 - Search user");
-    //     printf("\n 5 - Display users");
-    //     printf("\n 6 - Sort users");
-    //     printf("\n 0 - Exit");
-    //     printf("\n--------------------");
+    int command = -1;
+    while (command != 0) {
+        
+        printf("\n--------------------");
+        printf("\nCommands -- Linked List");
+        printf("\n 1 - Add user");
+        printf("\n 2 - Delete user");
+        printf("\n 3 - Update user");
+        printf("\n 4 - Search user");
+        printf("\n 5 - Display users");
+        printf("\n 6 - Sort users");
+        printf("\n 0 - Exit");
+        printf("\n--------------------");
 
-    //     printf("\nEnter command: ");
-    //     scanf("%d", &command);
-    //     getchar();
+        printf("\nEnter command: ");
+        scanf("%d", &command);
+        getchar();
 
-    //     if (command == 1) {
-            
-    //     } else if (command == 2) {
-            
-    //     } else if (command == 3) {
-            
-    //     } else if (command == 4) {
-            
-    //     } else if (command == 5) {
-            
-    //     } else if (command == 6) {
-            
-    //     } else if (command == 0) {
-    //     }
-    // }
-
-    int option = 0;
-    while (option < 5) {
-
-        printf("\nOptions\n");
-        printf("1 : Insert into Linked List \n");
-        printf("2 : Delete from Linked List \n");
-        printf("3 : Display Linked List\n");
-        printf("4 : Count Linked List\n");
-        printf("Others : Exit()\n");
-        printf("Enter your option:");
-        scanf("%d", &option);
-        switch (option) {
+        switch (command) {
         case 1:
-            insert();
+            insert_user();
             break;
         case 2:
-            delete();
+            delete_user();
             break;
         case 3:
-            display();
+            update_user();
             break;
         case 4:
-            count();
+            break;
+        case 5:
+            display_users();
+            break;
+        case 6:
             break;
         default:
             break;
