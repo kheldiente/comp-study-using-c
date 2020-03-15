@@ -19,7 +19,6 @@ char (*favColor)[FAVCOLOR_LENGTH];
 int *age;
 
 int n = 0;
-int command = -1;
 
 int sorted_number_binary_search(int arr[], int size, int element) {
     int start = 0;
@@ -46,6 +45,7 @@ int sorted_char_binary_search(char *arr, int length, int size, char *element) {
     while (start <= end) {
         mid = (start + end) / 2;
         memcpy(tempValue, arr + (mid * length), length);
+        strtok(tempValue, "\n");
 
         int result = strcmp(tempValue, element);
         if (result == 0) {
@@ -67,16 +67,26 @@ int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
     char currString[length];
     int tempIndex = -1;
 
+    char compPrevString[length];
+    char compCurrString[length];
     int j = 0;
+
     memcpy(tempArr, arr, n * length);
     for (int x=0;x<n;x++) {
         tempIndexArr[x] = x + 1;
     }
+    
     while(j != (n - 1)) {
         for (int i=j+1;i<n;i++) { 
             strcpy(prevString, tempArr + (j * length));
             strcpy(currString, tempArr + (i * length));
-            if (strcmp(prevString, currString) > 0) {
+
+            strcpy(compPrevString, prevString);
+            strcpy(compCurrString, currString);
+            strtok(compPrevString, "\n");
+            strtok(compCurrString, "\n");
+
+            if (strcmp(compPrevString, compCurrString) > 0) {
                 // Swap char array
                 strcpy(tempString, prevString); 
                 strcpy(tempArr + (j * length), currString); 
@@ -98,38 +108,6 @@ int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
     }
     free(tempArr);
     return -1;   
-}
-
-char* bubble_sort_char(char *arr, int length, int n) {
-    char *tempArr = malloc(n * sizeof(char[length]));
-    char tempString[length]; 
-    char prevString[length];
-    char currString[length];
-    
-    int j = 0;
-    memcpy(tempArr, arr, n * length);
-
-    while(j != (n - 1)) {
-        for (int i=j+1;i<n;i++) { 
-            strcpy(prevString, tempArr + (j * length));
-            strcpy(currString, tempArr + (i * length));
-            if (strcmp(prevString, currString) > 0) {
-                // Swap char array
-                strcpy(tempString, prevString); 
-                strcpy(tempArr + (j * length), currString); 
-                strcpy(tempArr + (i * length), tempString); 
-            }
-        }
-        j++;
-    }
-
-    // Check if sorted. Comment out for debugging
-    // int x = 0;
-    // while(x != n) {
-    //     printf("\n %s", tempArr + (x * length));   
-    //     x++; 
-    // }
-    return tempArr;
 }
 
 void sort_users() { 
@@ -192,6 +170,38 @@ void sort_users() {
     } 
 }
 
+void display_user(int index) {
+    int tempUserId;
+    char tempFirstName[FNAME_LENGTH];
+    char tempLastName[LNAME_LENGTH];
+    char tempBirthday[BDAY_LENGTH];
+    char tempGender[GENDER_LENGTH];
+    char tempFavColor[FAVCOLOR_LENGTH];
+    int tempAge;
+
+    tempUserId = userId[index];
+    strcpy(tempFirstName, firstName[index]);
+    strcpy(tempLastName, lastName[index]);
+    strcpy(tempBirthday, birthday[index]);
+    strcpy(tempGender, gender[index]);
+    strcpy(tempFavColor, favColor[index]);
+    tempAge = age[index];
+
+    printf("\n\n----------------------------------------\n");
+    printf("               Result - Index: %d             ", index);
+    printf("\n----------------------------------------\n");
+
+    printf("\n-------------------------");
+    printf("\nUser id: %d", tempUserId);
+    printf("\nFirst name: %s", strtok(tempFirstName, "\n"));
+    printf("\nLast name: %s", strtok(tempLastName, "\n"));
+    printf("\nBirthday: %s", strtok(tempBirthday, "\n"));
+    printf("\nAge: %d", tempAge);
+    printf("\nGender: %s", strtok(tempGender, "\n"));
+    printf("\nFavorite color: %s", strtok(tempFavColor, "\n"));
+    printf("\n-------------------------\n\n");
+}
+
 void display_users() {
     printf("\n\n----------------------------------------\n");
     printf("               Users: %d            ", n);
@@ -199,33 +209,9 @@ void display_users() {
     
     for(int x=0;x<n;x++) {
         if (userId[x] != -1) {
-            printf("\n-------------------------");
-            printf("\nUser id: %d", userId[x]);
-            printf("\nFirst name: %s", firstName[x]);
-            printf("\nLast name: %s", lastName[x]);
-            printf("\nBirthday: %s", birthday[x]);
-            printf("\nAge: %d", age[x]);
-            printf("\nGender: %s", gender[x]);
-            printf("\nFavorite color: %s", favColor[x]);
-            printf("\n-------------------------\n\n");
+            display_user(x);
         }
     }
-}
-
-void display_user(int index) {
-    printf("\n\n----------------------------------------\n");
-    printf("               Result                       ");
-    printf("\n----------------------------------------\n");
-
-    printf("\n-------------------------");
-    printf("\nUser id: %d", userId[index]);
-    printf("\nFirst name: %s", firstName[index]);
-    printf("\nLast name: %s", lastName[index]);
-    printf("\nBirthday: %s", birthday[index]);
-    printf("\nAge: %d", age[index]);
-    printf("\nGender: %s", gender[index]);
-    printf("\nFavorite color: %s", favColor[index]);
-    printf("\n-------------------------\n\n");
 }
 
 int find_user(char *keyword) {
@@ -272,6 +258,17 @@ void search_user() {
     }
 }
 
+void increase_size() {
+    if (n == recordSize) {
+        recordSize = recordSize * 2;
+        char (*tmpFname) = realloc(firstName, recordSize * sizeof(char[FNAME_LENGTH]));
+        if (tmpFname != NULL) {
+            firstName = tmpFname;
+        }
+        free(tmpFname);
+    }
+}
+
 void add_user() {
     printf("\n\n----------Input user----------\n");
 
@@ -299,14 +296,7 @@ void add_user() {
     printf("----------Added user!---------- \n\n");
     n++;
 
-    if (n == recordSize) {
-        recordSize = recordSize * 2;
-        char (*tmpFname) = realloc(firstName, recordSize * sizeof(char[FNAME_LENGTH]));
-        if (tmpFname != NULL) {
-            firstName = tmpFname;
-        }
-        free(tmpFname);
-    }
+    increase_size();
 }
 
 void delete_user() {
@@ -433,9 +423,11 @@ int main() {
 
     // input_sample_data();
 
+    int command = -1;
     while (command != 0) {
+
         printf("\n--------------------");
-        printf("\nCommands:");
+        printf("\nCommands -- Arrays");
         printf("\n 1 - Add user");
         printf("\n 2 - Delete user");
         printf("\n 3 - Update user");
@@ -449,25 +441,33 @@ int main() {
         scanf("%d", &command);
         getchar();
 
-        if (command == 1) {
+        switch (command) {
+        case 1:
             add_user();
-        } else if (command == 2) {
+            break;
+        case 2:
             delete_user();
-        } else if (command == 3) {
+            break;
+        case 3:
             update_user();
-        } else if (command == 4) {
+            break;
+        case 4:
             search_user();
-        } else if (command == 5) {
+            break;
+        case 5:
             display_users();
-        } else if (command == 6) {
+            break;
+        case 6:
             sort_users();
-        } else if (command == 0) {
+            break;
+        default:
             free(firstName);
             free(lastName);
             free(birthday);
             free(gender);
             free(favColor);
             free(age);
+            break;
         }
     }
     return 0;
