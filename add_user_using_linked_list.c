@@ -24,6 +24,72 @@ DATA_NODE *headNode, *firstNode, *tempNode = 0, *prevNode, nextNode;
 int n = 0;
 int command = -1;
 
+void swap(DATA_NODE *a, DATA_NODE *b) { 
+  char tempFname[FNAME_LENGTH];
+  char tempLname[LNAME_LENGTH];
+  char tempBday[BDAY_LENGTH];
+  char tempGender[GENDER_LENGTH];
+  char tempFavColor[FAVCOLOR_LENGTH];
+  int tempAge;
+  
+  strcpy(tempFname, a->firstName);
+  strcpy(tempLname, a->lastName);
+  strcpy(tempBday, a->birthday);
+  strcpy(tempGender, a->gender);
+  strcpy(tempFavColor, a->favColor);
+  tempAge = a->age;
+
+  strcpy(a->firstName, b->firstName);
+  strcpy(b->firstName, tempFname);
+
+  strcpy(a->lastName, b->lastName);
+  strcpy(b->lastName, tempLname);
+
+  strcpy(a->birthday, b->birthday);
+  strcpy(b->birthday, tempBday);
+
+  strcpy(a->gender, b->gender);
+  strcpy(b->gender, tempGender);
+
+  strcpy(a->favColor, b->favColor);
+  strcpy(b->favColor, tempFavColor);
+
+  a->age = b->age; 
+  b->age = tempAge; 
+} 
+
+void bubble_sort() { 
+    int swapped, i; 
+    DATA_NODE *ptr1; 
+    DATA_NODE *lptr = NULL; 
+
+    char prevFullName[LNAME_LENGTH + FNAME_LENGTH];
+    char fullName[LNAME_LENGTH + FNAME_LENGTH];
+  
+    if (firstNode == NULL) 
+        return; 
+  
+    do { 
+        swapped = 0; 
+        ptr1 = firstNode; 
+  
+        while (ptr1->next != lptr) { 
+            strcpy(prevFullName, ptr1->lastName);
+            strcat(prevFullName, ptr1->firstName);
+
+            strcpy(fullName, ptr1->next->lastName);
+            strcat(fullName, ptr1->next->firstName);
+            if (strcmp(prevFullName, fullName)) {  
+                swap(ptr1, ptr1->next); 
+                swapped = 1; 
+            } 
+            ptr1 = ptr1->next; 
+        } 
+        lptr = ptr1; 
+    } 
+    while (swapped); 
+}
+
 void insert_user() {
   char fName[FNAME_LENGTH];
   char lName[LNAME_LENGTH];
@@ -209,13 +275,33 @@ void delete_user() {
 }
 
 void display_user(DATA_NODE *node) {
+  char tempFname[FNAME_LENGTH];
+  char tempLname[LNAME_LENGTH];
+  char tempBday[BDAY_LENGTH];
+  char tempGender[GENDER_LENGTH];
+  char tempFavColor[FAVCOLOR_LENGTH];
+  int tempAge;
+
+  strcpy(tempFname, node->firstName);
+  strcpy(tempLname, node->lastName);
+  strcpy(tempBday, node->birthday);
+  strcpy(tempGender, node->gender);
+  strcpy(tempFavColor, node->favColor);
+  tempAge = node->age;
+
+  strtok(tempFname, "\n");
+  strtok(tempLname,"\n");
+  strtok(tempBday, "\n");
+  strtok(tempGender, "\n");
+  strtok(tempFavColor, "\n");
+
   printf("\n-------------------------");
-  printf("\nFirst name: %s", node->firstName);
-  printf("\Last name: %s", node->lastName);
-  printf("\nBirthday: %s", node->birthday);
-  printf("\nAge: %d", node->age);
-  printf("\nGender: %s", node->gender);
-  printf("\nFavorite color: %s", node->favColor);
+  printf("\nFirst name: %s", tempFname);
+  printf("\nLast name: %s", tempLname);
+  printf("\nBirthday: %s", tempBday);
+  printf("\nAge: %d", tempAge);
+  printf("\nGender: %s", tempGender);
+  printf("\nFavorite color: %s", tempFavColor);
   printf("\n-------------------------\n\n");
 }
 
@@ -288,7 +374,6 @@ int count_users() {
 int main() {
     int command = -1;
     while (command != 0) {
-        
         printf("\n--------------------");
         printf("\nCommands -- Linked List");
         printf("\n 1 - Add user");
@@ -321,6 +406,7 @@ int main() {
             display_users();
             break;
         case 6:
+            bubble_sort();
             break;
         default:
             break;
