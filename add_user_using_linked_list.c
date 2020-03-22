@@ -7,17 +7,17 @@
 #define GENDER_LENGTH 2
 #define FAVCOLOR_LENGTH 15
 
-struct node {
+struct Node {
   char firstName[FNAME_LENGTH];
   char lastName[LNAME_LENGTH];
   char birthday[BDAY_LENGTH];
   char gender[GENDER_LENGTH];
   char favColor[FAVCOLOR_LENGTH];
   int age;
-  struct node *next;
+  struct Node *next;
 };
 
-typedef struct node DATA_NODE;
+typedef struct Node DATA_NODE;
 
 DATA_NODE *headNode, *firstNode, *tempNode = 0, *prevNode, nextNode;
 
@@ -119,7 +119,7 @@ void insert_user() {
   printf("Favorite color (eg: blue, yellow, midnight blue, etc.): ");
   fgets(favColor, sizeof(favColor), stdin);
 
-  tempNode = (DATA_NODE *) malloc(sizeof (DATA_NODE));
+  tempNode = (DATA_NODE *) malloc(sizeof(DATA_NODE));
 
   strcpy(tempNode->firstName, fName);
   strcpy(tempNode->lastName, lName);
