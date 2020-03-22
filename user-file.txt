@@ -1,0 +1,8 @@
+<user>
+   <firstName>Michael</firstName>
+   <lastName>Diente</lastName>
+   <birthday>5/2/1992<birthday>
+   <age>27</age>
+   <gender>M</gender>
+   <favColor>blue</favColor>
+</user>
