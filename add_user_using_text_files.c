@@ -5,7 +5,8 @@
 #define BDAY_LENGTH 9
 #define GENDER_LENGTH 2
 #define FAVCOLOR_LENGTH 15
-#define FILE_PATH "./user-file.txt"
+#define FILE_PATH "./user-file.xml"
+#define MAX_USERS 1000
 
 #define USER_START_TAG "<user>"
 #define USER_END_TAG "</user>"
@@ -22,7 +23,7 @@
 #define AGE_START_TAG "<age>"
 #define AGE_END_TAG "</age>"
 
-struct Node {
+struct User {
   char firstName[FNAME_LENGTH];
   char lastName[LNAME_LENGTH];
   char birthday[BDAY_LENGTH];
@@ -31,63 +32,178 @@ struct Node {
   int age;
 };
 
-typedef struct Node DATA_NODE;
+typedef struct User DATA_USER;
+int userSize = 0;
 
-void remove_substring();
-void write_file();
-void read_file();
+char* remove_substring();
+void write_file(DATA_USER *node, const char *command);
+DATA_USER* get_users();
+DATA_USER* find_user(char *keyword);
 void insert_user();
 void delete_user();
 void update_user();
 void search_user();
 void display_users();
-void bubble_sort();
+void bubble_sort_and_bsearch_char();
 
-void remove_substring(char *string, char *sub) {
+char* remove_substring(char *input, char *sub) {
     char *match;
+    char *output = input;
     int len = strlen(sub);
-    while ((match = strstr(string, sub))) {
+    while ((match = strstr(output, sub))) {
         *match = '\0';
-        strcat(string, match+len);
+        strcat(output, match + len);
     }
+    return output;
+}
+char* remove_leading_spaces(char* input) {
+    int i, j;
+    char *output = input;
+    for (i = 0, j = 0;i<strlen(input); i++,j++){
+        if (input[i] != ' ') {                          
+            output[j] = input[i];                     
+        } else {
+            j--;
+        }                                     
+    }
+    output[j] = 0;
+    return output;
+}
+
+char* remove_trailing_spaces(char* input) {
+    int len = strlen(input);
+    char *output = input;
+    if (output[len - 1] == '\n') {
+        output[len - 1] = 0;
+    }
+    return output;
+}
+
+char* normalize_data(char* buffer, char *startTag, char* endTag) {
+    char *formatted1 = remove_substring(buffer, startTag);
+    // printf("\nnormalize_data->formatted1: %s", formatted1);
+    char *formatted2 = remove_substring(formatted1, endTag);
+    // printf("\nnormalize_data->formatted2: %s", formatted2);
+    char *formatted3 = remove_leading_spaces(formatted2);
+    // printf("\nnormalize_data->formatted3: %s", formatted3);
+    char *output = remove_trailing_spaces(formatted3);
+    // printf("\nnormalize_data->output: %s", output);
+    return output;
+}
+
+DATA_USER* find_user(char *keyword) {
+
+}
+
+DATA_USER* get_users() {
+    FILE* filePointer;
+    int bufferLength = 255;
+    char buffer[bufferLength];
+
+    DATA_USER userList[MAX_USERS];
+    int userIndex = -1;
+
+    filePointer = fopen(FILE_PATH, "r");
+
+    while (fgets(buffer, bufferLength, filePointer)) {
+        if (strstr(buffer, USER_START_TAG) != NULL) {
+            userIndex++;
+        }
+
+        if (strstr(buffer, FIRST_NAME_START_TAG) != NULL) {
+            char *firstName = normalize_data(buffer, FIRST_NAME_START_TAG, FIRST_NAME_END_TAG);
+            strcpy(&userList[userIndex].firstName, firstName);
+        }
+        if (strstr(buffer, LAST_NAME_START_TAG) != NULL) {
+            char *lastName = normalize_data(buffer, LAST_NAME_START_TAG, LAST_NAME_END_TAG);
+            strcpy(&userList[userIndex].lastName, lastName);
+        }
+        if (strstr(buffer, BDAY_START_TAG) != NULL) {
+            char *birthday = normalize_data(buffer, BDAY_START_TAG, BDAY_END_TAG);
+            strcpy(&userList[userIndex].birthday, birthday);
+        }
+        if (strstr(buffer, GENDER_START_TAG) != NULL) {
+            char *gender = normalize_data(buffer, GENDER_START_TAG, GENDER_END_TAG);
+            strcpy(&userList[userIndex].gender, gender);
+        }
+        if (strstr(buffer, FAVCOLOR_START_TAG) != NULL) {
+            char *favColor = normalize_data(buffer, FAVCOLOR_START_TAG, FAVCOLOR_END_TAG);
+            strcpy(&userList[userIndex].favColor, favColor);
+        }
+        // if (strstr(buffer, AGE_START_TAG) != NULL) {
+        //     remove_substring(buffer, AGE_START_TAG);
+        //     remove_substring(buffer, AGE_END_TAG);
+        //     tempUser->age = buffer
+        // }
+    }
+    userSize = userIndex + 1;
+
+    fclose(filePointer);
+    return userList;
 }
 
 void insert_user() {
-    DATA_NODE *tempNode = (DATA_NODE *) malloc(sizeof(DATA_NODE));
+    DATA_USER *tempUser = (DATA_USER *) malloc(sizeof(DATA_USER));
 
     printf("\n\n----------Input user----------\n");
 
     printf("First name: ");
-    fgets(tempNode->firstName, sizeof(tempNode->firstName), stdin);
-    strtok(tempNode->firstName, "\n");
+    fgets(tempUser->firstName, sizeof(tempUser->firstName), stdin);
+    strtok(tempUser->firstName, "\n");
 
     printf("Last name: ");
-    fgets(tempNode->lastName, sizeof(tempNode->lastName), stdin);
-    strtok(tempNode->lastName, "\n");
+    fgets(tempUser->lastName, sizeof(tempUser->lastName), stdin);
+    strtok(tempUser->lastName, "\n");
 
     printf("Birthday (eg: 05/02/1992): ");
-    scanf("%s", tempNode->birthday);
+    scanf("%s", tempUser->birthday);
 
     printf("Age: ");
-    scanf("%d", &tempNode->age);
+    scanf("%d", &tempUser->age);
 
     printf("Gender (M/F): ");
-    scanf("%s", tempNode->gender);
+    scanf("%s", tempUser->gender);
     getchar();
 
     printf("Favorite color (eg: blue, yellow, midnight blue, etc.): ");
-    fgets(tempNode->favColor, sizeof(tempNode->favColor), stdin);
-    strtok(tempNode->favColor, "\n");
+    fgets(tempUser->favColor, sizeof(tempUser->favColor), stdin);
+    strtok(tempUser->favColor, "\n");
 
-    write_file(tempNode);
+    write_file(tempUser, "a");
 }
 
 void delete_user() {
+    char keyword[30];
+    char yes[2] = "n";
 
+    printf("\nEnter keyword, or else type exit: ");
+    scanf("%s", keyword);
+
+    DATA_USER *userList = get_users();
+
+    // Rewrite file. Do not include matched user
+    for (int i=0; i<userSize; i++) {
+        DATA_USER *user = &userList[i];
+        
+        if (strstr(keyword, user->firstName) == NULL) {
+            write_file(user, "w");
+        }
+    }
 }
 
 void update_user() {
+    char keyword[30];
+    char value[30];
+    int attribute = -1;
 
+    while (strcmp(keyword, "exit") != 0) {
+        printf("\nEnter keyword to search user, or else type exit: ");
+        scanf("%s", keyword);
+
+        if (strcmp(keyword, "exit") != 0) {
+            
+        }
+    }
 }
 
 void search_user() {
@@ -95,14 +211,6 @@ void search_user() {
 }
 
 void display_users() {
-    read_file();
-}
-
-void bubble_sort() {
-
-}
-
-void read_file() {
     FILE* filePointer;
     int bufferLength = 255;
     char buffer[bufferLength];
@@ -114,35 +222,31 @@ void read_file() {
             printf("\n-------------------------");    
         }
         if (strstr(buffer, FIRST_NAME_START_TAG) != NULL) {
-            remove_substring(buffer, FIRST_NAME_START_TAG);
-            remove_substring(buffer, FIRST_NAME_END_TAG);
-            printf("\nFirst name: %s", buffer);
+            char *firstName = normalize_data(buffer, FIRST_NAME_START_TAG, FIRST_NAME_END_TAG);
+            printf("\nFirst name: %s", firstName);
         }
         if (strstr(buffer, LAST_NAME_START_TAG) != NULL) {
-            remove_substring(buffer, LAST_NAME_START_TAG);
-            remove_substring(buffer, LAST_NAME_END_TAG);
-            printf("\nLast name: %s", buffer);
+            char *lastName = normalize_data(buffer, LAST_NAME_START_TAG, LAST_NAME_END_TAG);
+            printf("\nLast name: %s", lastName);
         }
         if (strstr(buffer, BDAY_START_TAG) != NULL) {
-            remove_substring(buffer, BDAY_START_TAG);
-            remove_substring(buffer, BDAY_END_TAG);
-            printf("\nBirthday: %s", buffer);
+            char *birthday = normalize_data(buffer, BDAY_START_TAG, BDAY_END_TAG);
+            printf("\nBirthday: %s", birthday);
         }
         if (strstr(buffer, GENDER_START_TAG) != NULL) {
-            remove_substring(buffer, GENDER_START_TAG);
-            remove_substring(buffer, GENDER_END_TAG);
-            printf("\nGender: %s", buffer);
+            char *gender = normalize_data(buffer, GENDER_START_TAG, GENDER_END_TAG);
+            printf("\nGender: %s", gender);
         }
         if (strstr(buffer, FAVCOLOR_START_TAG) != NULL) {
-            remove_substring(buffer, FAVCOLOR_START_TAG);
-            remove_substring(buffer, FAVCOLOR_END_TAG);
-            printf("\nFavorite color: %s", buffer);
+            char *favColor = normalize_data(buffer, FAVCOLOR_START_TAG, FAVCOLOR_END_TAG);
+            printf("\nFavorite color: %s", favColor);
         }
-        if (strstr(buffer, AGE_START_TAG) != NULL) {
-            remove_substring(buffer, AGE_START_TAG);
-            remove_substring(buffer, AGE_END_TAG);
-            printf("\nAge: %s", buffer);
-        }
+        // if (strstr(buffer, AGE_START_TAG) != NULL) {
+        //     remove_substring(buffer, AGE_START_TAG);
+        //     remove_substring(buffer, AGE_END_TAG);
+        //     char * formatted = remove_leading_spaces(buffer);
+        //     printf("\nAge: %s", buffer);
+        // }
         if (strstr(buffer, USER_END_TAG) != NULL) {
             printf("\n-------------------------\n\n");
         }
@@ -150,10 +254,13 @@ void read_file() {
     fclose(filePointer);
 }
 
+void bubble_sort_and_bsearch_char() {
 
-void write_file(DATA_NODE *node) {
+}
+
+void write_file(DATA_USER *node, const char *command) {
     FILE * fp;
-    fp = fopen (FILE_PATH,"a");
+    fp = fopen(FILE_PATH, command);
     
     fprintf(fp, "%s\n", USER_START_TAG);
     fprintf(fp, "   %s%s%s\n", FIRST_NAME_START_TAG, node->firstName, FIRST_NAME_END_TAG);
