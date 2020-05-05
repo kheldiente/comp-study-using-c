@@ -7,7 +7,7 @@ struct Node {
     char firstName[FNAME_LENGTH];
     char lastName[LNAME_LENGTH];
     char birthday[BDAY_LENGTH];
-    char gender[GENDER_LENGTH];
+    char gender[GENDER_LENGTH];  
     char favColor[FAVCOLOR_LENGTH];
     int age;
     struct Node *next;
@@ -51,7 +51,8 @@ void swap(DATA_NODE *a, DATA_NODE *b) {
     b->age = tempAge; 
 } 
 
-void bubble_sort() { 
+void sort_users() { 
+    // Using bubble sort algorithm
     int swapped, i; 
     DATA_NODE *ptr1; 
     DATA_NODE *lptr = NULL; 
@@ -311,9 +312,7 @@ void search_user() {
     char keyword[30];
     char tempFname[FNAME_LENGTH];
     char tempLname[LNAME_LENGTH];
-    char tempBday[BDAY_LENGTH];
     char tempGender[GENDER_LENGTH];
-    char tempFavColor[FAVCOLOR_LENGTH];
     int tempAge;
 
     while (strcmp(keyword, "exit") != 0) {
@@ -325,28 +324,20 @@ void search_user() {
         while (tempNode != 0) {
             strcpy(tempFname, tempNode->firstName);
             strcpy(tempLname, tempNode->lastName);
-            strcpy(tempBday, tempNode->birthday);
             strcpy(tempGender, tempNode->gender);
-            strcpy(tempFavColor, tempNode->favColor);
             tempAge = tempNode->age;
 
             strtok(tempFname, "\n");
             strtok(tempLname,"\n");
-            strtok(tempBday, "\n");
             strtok(tempGender, "\n");
-            strtok(tempFavColor, "\n");
 
             int resFname = strcmp(tempFname, keyword);
             int resLname = strcmp(tempLname, keyword);
-            int resBday = strcmp(tempBday, keyword);
             int resGender = strcmp(tempGender, keyword);
-            int resFavColor = strcmp(tempFavColor, keyword);
 
             if (resFname == 0
             || resLname == 0
-            || resBday == 0
-            || resGender == 0
-            || resFavColor == 0) {
+            || resGender == 0) {
                 display_user(tempNode);
                 break;
             }
@@ -400,7 +391,7 @@ int main() {
             display_users();
             break;
         case 6:
-            bubble_sort();
+            sort_users();
             break;
         default:
             break;
