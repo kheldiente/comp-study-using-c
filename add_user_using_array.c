@@ -3,8 +3,6 @@
 #include "user_define.h"
 #include "string_formatter.h"
 
-size_t recordSize = 3;
-
 int *userId;
 char (*firstName)[FNAME_LENGTH];
 char (*lastName)[LNAME_LENGTH];
@@ -13,13 +11,14 @@ char (*gender)[GENDER_LENGTH];
 char (*favColor)[FAVCOLOR_LENGTH];
 int *age;
 
-int n = 0;
+int currentSize = 0;
+int *isAvailable; // 0 = false, 1 = true
 
 int sorted_number_binary_search(int arr[], int size, int element) {
     int start = 0;
     int end = size - 1;
     while (start <= end) {
-        int mid = (start + end) / 2;
+        int mid = ceil((start + end) / 2);
         if (arr[mid] == element) {
             return mid;
         } else if (element < arr[mid]) {
@@ -44,8 +43,8 @@ int sorted_char_binary_search(char *arr, int length, int size, char *element) {
         strtok(tempValue, "\n");
 
         int result = strcmp(tempValue, element);
-        printf("\nsorted_char_binary_seawrch BEFORE start: %d, mid: %d, end: %d, result: %d", start, mid, end, result);
-        printf("\nsorted_char_binary_search 1: %s, 2: %s, size: %d", tempValue, element, size);
+        // printf("\nsorted_char_binary_seawrch BEFORE start: %d, mid: %d, end: %d, result: %d", start, mid, end, result);
+        // printf("\nsorted_char_binary_search 1: %s, 2: %s, size: %d", tempValue, element, size);
         if (result == 0) {
             return mid;
         } else if (result > 0) {
@@ -53,8 +52,8 @@ int sorted_char_binary_search(char *arr, int length, int size, char *element) {
         } else {
             start = mid + 1;
         }
-        printf("\nsorted_char_binary_seawrch AFTER start: %d, mid: %d, end: %d", start, mid, end);
-        printf("\nsorted_char_binary_search 1: %s, 2: %s, size: %d", tempValue, element, size);
+        // printf("\nsorted_char_binary_seawrch AFTER start: %d, mid: %d, end: %d", start, mid, end);
+        // printf("\nsorted_char_binary_search 1: %s, 2: %s, size: %d", tempValue, element, size);
     }
     return -1;
 }
@@ -74,6 +73,7 @@ int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
     memcpy(tempArr, arr, n * length);
     for (int x=0;x<n;x++) {
         tempIndexArr[x] = x;
+        // printf("\nsorted index BEFORE: %d", tempIndexArr[x]);
     }
     
     while(j != (n - 1)) {
@@ -93,14 +93,18 @@ int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
                 strcpy(tempArr + (i * length), tempString);
 
                 // Swap indices
-                tempIndex = j;
-                tempIndexArr[j] = i;
+                tempIndex = tempIndexArr[j];
+                tempIndexArr[j] = tempIndexArr[i];
                 tempIndexArr[i] = tempIndex; 
             }
         }
         j++;
     }
     int foundIndex = sorted_char_binary_search(tempArr, length, n, keyword);
+    // for (int x=0;x<n;x++) {
+    //     printf("\nsorted index AFTER: %d", tempIndexArr[x]);
+    // }
+    // printf("\nfoundIndex: %d", foundIndex);
     if (foundIndex != -1) {
         int origIndex = tempIndexArr[foundIndex];
         return origIndex;    
@@ -119,8 +123,8 @@ void sort_users() {
     int tempAge;
     int tempUserId;
 
-    for (int j=0; j<n-1; j++) { 
-        for (int i=j+1; i<n; i++) { 
+    for (int j=0; j<currentSize-1; j++) { 
+        for (int i=j+1; i<currentSize; i++) { 
             if (userId[j] != -1) {
                 strcpy(prevFullName, lastName[j]);
                 strcat(prevFullName, firstName[j]);
@@ -185,42 +189,50 @@ void display_user(int index) {
     strcpy(tempFavColor, favColor[index]);
     tempAge = age[index];
 
+    strtok(tempFirstName, "\n");
+    strtok(tempLastName, "\n");
+    strtok(tempBirthday, "\n");
+    strtok(tempGender, "\n");
+    strtok(tempFavColor, "\n");
+
     printf("\n-------------------------");
     printf("\nUser id: %d", tempUserId);
-    printf("\nFirst name: %s", strtok(tempFirstName, "\n"));
-    printf("\nLast name: %s", strtok(tempLastName, "\n"));
-    printf("\nBirthday: %s", strtok(tempBirthday, "\n"));
+    printf("\nFirst name: %s", tempFirstName);
+    printf("\nLast name: %s", tempLastName);
+    printf("\nBirthday: %s", tempBirthday);
     printf("\nAge: %d", tempAge);
-    printf("\nGender: %s", strtok(tempGender, "\n"));
-    printf("\nFavorite color: %s", strtok(tempFavColor, "\n"));
+    printf("\nGender: %s",tempGender);
+    printf("\nFavorite color: %s", tempFavColor);
     printf("\n-------------------------\n\n");
 }
 
 void display_users() {
-    printf("\n\n----------------------------------------\n");
-    printf("               Users: %d            ", n);
-    printf("\n----------------------------------------\n");
-    
-    for(int x=0;x<n;x++) {
-        if (userId[x] != -1) {
+    int deletedUsers = 0;
+    for(int x=0;x<currentSize;x++) {
+        if (isAvailable[x] == 1) {
             display_user(x);
+        } else {
+            deletedUsers++;
         }
     }
+    printf("----------------------------------------\n");
+    printf("               Users: %d            ", currentSize - deletedUsers);
+    printf("\n----------------------------------------\n");
 }
 
 int find_user(char *keyword) {
     int foundIndex = -1;
 
     if (foundIndex == -1) {
-        foundIndex = bubble_sort_and_bsearch_char(firstName, FNAME_LENGTH, n, keyword);
+        foundIndex = bubble_sort_and_bsearch_char(firstName, FNAME_LENGTH, currentSize, keyword);
     }
 
     if (foundIndex == -1) {
-        foundIndex = bubble_sort_and_bsearch_char(lastName, LNAME_LENGTH, n, keyword);
+        foundIndex = bubble_sort_and_bsearch_char(lastName, LNAME_LENGTH, currentSize, keyword);
     }
 
     if (foundIndex == -1) {
-        foundIndex = bubble_sort_and_bsearch_char(gender, GENDER_LENGTH, n, keyword);
+        foundIndex = bubble_sort_and_bsearch_char(gender, GENDER_LENGTH, currentSize, keyword);
     }
     
     if (foundIndex != -1) {
@@ -273,16 +285,17 @@ void add_user() {
     printf("Favorite color (eg: blue, yellow, midnight blue, etc.): ");
     fgets(tempFavColor, sizeof(tempFavColor), stdin);
 
-    strcpy(firstName[n], tempFirstName);
-    strcpy(lastName[n], tempLastName);
-    strcpy(birthday[n], tempBirthday);
-    strcpy(gender[n], tempGender);
-    strcpy(favColor[n], tempFavColor);
-    age[n] = tempAge;
-    userId[n] = 1000 + (n + 1);
+    strcpy(firstName[currentSize], tempFirstName);
+    strcpy(lastName[currentSize], tempLastName);
+    strcpy(birthday[currentSize], tempBirthday);
+    strcpy(gender[currentSize], tempGender);
+    strcpy(favColor[currentSize], tempFavColor);
+    age[currentSize] = tempAge;
+    userId[currentSize] = 1000 + (currentSize + 1);
+    isAvailable[currentSize] = 1;
 
     printf("----------Added user!---------- \n\n");
-    n++;
+    currentSize++;
 }
 
 void delete_user() {
@@ -302,6 +315,7 @@ void delete_user() {
 
             if (strcmp(yes, "Y") == 0 || strcmp(yes, "y" == 0)) {
                 printf("Deleting: %s", firstName[userIndex]);
+                printf("\ndeleting index: %d", userIndex);
                 strcpy(firstName[userIndex], "\0");
                 strcpy(lastName[userIndex], "\0");
                 strcpy(birthday[userIndex], "\0");
@@ -309,7 +323,7 @@ void delete_user() {
                 strcpy(favColor[userIndex], "\0");
                 userId[userIndex] = -1;
                 age[userIndex] = -1;
-                n--;
+                isAvailable[userIndex] = 0;
             }
         }
         printf("\n");
@@ -358,13 +372,14 @@ void update_user() {
 }
 
 int main() {
-    userId = malloc(recordSize * sizeof(int));
-    firstName = malloc(recordSize * sizeof(char[FNAME_LENGTH]));
-    lastName = malloc(recordSize * sizeof(char[LNAME_LENGTH]));
-    birthday = malloc(recordSize * sizeof(char[BDAY_LENGTH]));
-    gender = malloc(recordSize * sizeof(char[GENDER_LENGTH]));
-    favColor = malloc(recordSize * sizeof(char[FAVCOLOR_LENGTH]));
-    age = malloc(recordSize * sizeof(int));
+    userId = malloc(MAX_USERS * sizeof(int));
+    firstName = malloc(MAX_USERS * sizeof(char[FNAME_LENGTH]));
+    lastName = malloc(MAX_USERS * sizeof(char[LNAME_LENGTH]));
+    birthday = malloc(MAX_USERS * sizeof(char[BDAY_LENGTH]));
+    gender = malloc(MAX_USERS * sizeof(char[GENDER_LENGTH]));
+    favColor = malloc(MAX_USERS * sizeof(char[FAVCOLOR_LENGTH]));
+    age = malloc(MAX_USERS * sizeof(int));
+    isAvailable = malloc(MAX_USERS * sizeof(int));
 
     int command = -1;
     while (command != 0) {
