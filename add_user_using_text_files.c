@@ -302,9 +302,10 @@ void update_user() {
         scanf("%s", keyword);
 
         if (strcmp(keyword, "exit") != 0) {
-            DATA_USER *tempUser = find_user(keyword);
-            if (tempUser != NULL) {
-                printf("\nUpdating user->firstName: %s", tempUser->firstName);
+            DATA_USER *matchedUser = find_user(keyword);
+            if (matchedUser != NULL) {
+                int matchedUserId = matchedUser->id;
+                printf("\nUpdating user with id: %d", matchedUserId);
 
                 printf("\nAttribute number");
                 printf("\n 1 - First name");
@@ -318,16 +319,28 @@ void update_user() {
                 printf("\nEnter new value: ");
                 scanf("%s", value);
 
-                if (attribute == 1) {
-                    strcpy(tempUser->firstName, value);
-                } else if (attribute == 2) {
-                    strcpy(tempUser->lastName, value);
-                } else if (attribute == 3) {
-                    strcpy(tempUser->birthday, value);
-                } else if (attribute == 4) {
-                    strcpy(tempUser->gender, value);
-                } else if (attribute == 5) {
-                    strcpy(tempUser->favColor, value);
+                DATA_USER *userList = get_users();
+                // Clear out file contents.
+                reset_file();
+
+                // Rewrite file. Do not include matched user
+                for (int i=0; i<userSize; i++) {
+                    DATA_USER *tempUser = &userList[i];
+                    // printf("\nupdate_user writing -> id: %d, matchedUserId: %d", matchedUserId, tempUser->id);
+                    if (matchedUserId == tempUser->id) {
+                        if (attribute == 1) {
+                            strcpy(tempUser->firstName, value);
+                        } else if (attribute == 2) {
+                            strcpy(tempUser->lastName, value);
+                        } else if (attribute == 3) {
+                            strcpy(tempUser->birthday, value);
+                        } else if (attribute == 4) {
+                            strcpy(tempUser->gender, value);
+                        } else if (attribute == 5) {
+                            strcpy(tempUser->favColor, value);
+                        }
+                    }
+                    write_file(tempUser, "a");
                 }
             }
         }
