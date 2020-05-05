@@ -323,7 +323,7 @@ void update_user() {
                 // Clear out file contents.
                 reset_file();
 
-                // Rewrite file. Do not include matched user
+                // Rewrite file. Updated attribute for matched user.
                 for (int i=0; i<userSize; i++) {
                     DATA_USER *tempUser = &userList[i];
                     // printf("\nupdate_user writing -> id: %d, matchedUserId: %d", matchedUserId, tempUser->id);
@@ -423,6 +423,44 @@ void search_user() {
     }
 }
 
+void sort_users() {
+    DATA_USER *tempUserList = get_users();
+    DATA_USER tempUser;
+
+    char prevFullName[LNAME_LENGTH + FNAME_LENGTH];
+    char fullName[LNAME_LENGTH + FNAME_LENGTH];
+    int tempUserSize = userSize;
+    if (tempUserSize == 0) {
+        tempUserSize = get_size();
+    }
+
+    for (int j=0; j<tempUserSize-1; j++) { 
+        for (int i=j+1; i<tempUserSize; i++) { 
+            if (tempUserList[j].id != -1) {
+                strcpy(prevFullName, tempUserList[j].lastName);
+                strcat(prevFullName, tempUserList[j].firstName);
+                strcpy(fullName, tempUserList[i].lastName);
+                strcat(fullName, tempUserList[i].firstName);
+
+                if (strcmp(prevFullName, fullName) > 0) {
+                    tempUser = tempUserList[j];
+                    tempUserList[j] = tempUserList[i];
+                    tempUserList[i] = tempUser;
+                }
+            }
+        } 
+    }
+
+    // Clear out file contents.
+    reset_file();
+
+    // Rewrite file with the new sequence
+    for (int i=0; i<tempUserSize; i++) {
+        DATA_USER *user = &tempUserList[i];
+        write_file(user, "a");
+    }
+}
+
 void write_file(DATA_USER *node, const char *command) {
     FILE * fp;
     fp = fopen(FILE_PATH, command);
@@ -481,6 +519,7 @@ int main() {
             display_users();
             break;
         case 6:
+            sort_users();
             break;
         default:
             break;
