@@ -2,6 +2,8 @@
 #include "user_define.h"
 #include "string_formatter.h"
 
+#define FILE_PATH "./user-file.xml"
+
 struct User {
     int id; 
     char firstName[FNAME_LENGTH];

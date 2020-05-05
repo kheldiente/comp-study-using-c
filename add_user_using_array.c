@@ -1,11 +1,7 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-#define FNAME_LENGTH 30
-#define LNAME_LENGTH 30
-#define BDAY_LENGTH 9
-#define GENDER_LENGTH 2
-#define FAVCOLOR_LENGTH 15
+#include <math.h>
+#include "user_define.h"
+#include "string_formatter.h"
 
 size_t recordSize = 3;
 
@@ -41,12 +37,15 @@ int sorted_char_binary_search(char *arr, int length, int size, char *element) {
     int end = size -1;
     char tempValue[length];
 
+    strtok(element, "\n");
     while (start <= end) {
-        mid = (start + end) / 2;
+        mid = ceil((start + end) / 2);
         memcpy(tempValue, arr + (mid * length), length);
         strtok(tempValue, "\n");
 
         int result = strcmp(tempValue, element);
+        printf("\nsorted_char_binary_seawrch BEFORE start: %d, mid: %d, end: %d, result: %d", start, mid, end, result);
+        printf("\nsorted_char_binary_search 1: %s, 2: %s, size: %d", tempValue, element, size);
         if (result == 0) {
             return mid;
         } else if (result > 0) {
@@ -54,6 +53,8 @@ int sorted_char_binary_search(char *arr, int length, int size, char *element) {
         } else {
             start = mid + 1;
         }
+        printf("\nsorted_char_binary_seawrch AFTER start: %d, mid: %d, end: %d", start, mid, end);
+        printf("\nsorted_char_binary_search 1: %s, 2: %s, size: %d", tempValue, element, size);
     }
     return -1;
 }
@@ -72,7 +73,7 @@ int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
 
     memcpy(tempArr, arr, n * length);
     for (int x=0;x<n;x++) {
-        tempIndexArr[x] = x + 1;
+        tempIndexArr[x] = x;
     }
     
     while(j != (n - 1)) {
@@ -102,10 +103,8 @@ int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
     int foundIndex = sorted_char_binary_search(tempArr, length, n, keyword);
     if (foundIndex != -1) {
         int origIndex = tempIndexArr[foundIndex];
-        free(tempArr);
         return origIndex;    
     }
-    free(tempArr);
     return -1;   
 }
 
@@ -221,15 +220,7 @@ int find_user(char *keyword) {
     }
 
     if (foundIndex == -1) {
-        foundIndex = bubble_sort_and_bsearch_char(birthday, BDAY_LENGTH, n, keyword);
-    }
-
-    if (foundIndex == -1) {
         foundIndex = bubble_sort_and_bsearch_char(gender, GENDER_LENGTH, n, keyword);
-    }
-
-    if (foundIndex == -1) {
-        foundIndex = bubble_sort_and_bsearch_char(favColor, FAVCOLOR_LENGTH, n, keyword);
     }
     
     if (foundIndex != -1) {
@@ -253,45 +244,45 @@ void search_user() {
     }
 }
 
-void increase_size() {
-    if (n == recordSize) {
-        recordSize = recordSize * 2;
-        char (*tmpFname) = realloc(firstName, recordSize * sizeof(char[FNAME_LENGTH]));
-        if (tmpFname != NULL) {
-            firstName = tmpFname;
-        }
-        free(tmpFname);
-    }
-}
-
 void add_user() {
     printf("\n\n----------Input user----------\n");
+    int tempUserId;
+    char tempFirstName[FNAME_LENGTH];
+    char tempLastName[LNAME_LENGTH];
+    char tempBirthday[BDAY_LENGTH];
+    char tempGender[GENDER_LENGTH];
+    char tempFavColor[FAVCOLOR_LENGTH];
+    int tempAge;
 
     printf("First name: ");
-    fgets(firstName[n], sizeof(firstName[n]), stdin);
+    fgets(tempFirstName, sizeof(tempFirstName), stdin);
 
     printf("Last name: ");
-    fgets(lastName[n], sizeof(lastName[n]), stdin);
+    fgets(tempLastName, sizeof(tempLastName), stdin);
 
     printf("Birthday (eg: 05/02/1992): ");
-    scanf("%s", birthday[n]);
+    scanf("%s", tempBirthday);
 
     printf("Age: ");
-    scanf("%d", &age[n]);
+    scanf("%d", &tempAge);
 
     printf("Gender (M/F): ");
-    scanf("%s", gender[n]);
+    scanf("%s", tempGender);
     getchar();
 
     printf("Favorite color (eg: blue, yellow, midnight blue, etc.): ");
-    fgets(favColor[n], sizeof(favColor[n]), stdin);
+    fgets(tempFavColor, sizeof(tempFavColor), stdin);
 
+    strcpy(firstName[n], tempFirstName);
+    strcpy(lastName[n], tempLastName);
+    strcpy(birthday[n], tempBirthday);
+    strcpy(gender[n], tempGender);
+    strcpy(favColor[n], tempFavColor);
+    age[n] = tempAge;
     userId[n] = 1000 + (n + 1);
 
     printf("----------Added user!---------- \n\n");
     n++;
-
-    increase_size();
 }
 
 void delete_user() {
@@ -310,6 +301,7 @@ void delete_user() {
             scanf("%s", yes);
 
             if (strcmp(yes, "Y") == 0 || strcmp(yes, "y" == 0)) {
+                printf("Deleting: %s", firstName[userIndex]);
                 strcpy(firstName[userIndex], "\0");
                 strcpy(lastName[userIndex], "\0");
                 strcpy(birthday[userIndex], "\0");
@@ -365,48 +357,6 @@ void update_user() {
     }
 }
 
-void input_sample_data() {
-    userId[0] = 1001;
-    strcpy(firstName[0], "Michael John");
-    strcpy(lastName[0], "Diente");
-    strcpy(birthday[0], "5/2/1992");
-    strcpy(gender[0], "M");
-    strcpy(favColor[0], "yellow");
-    age[0] = 27;
-
-    n = 1;
-
-    userId[1] = 1002;
-    strcpy(firstName[1], "Ali baba");
-    strcpy(lastName[1], "Alvarez");
-    strcpy(birthday[1], "4/8/1998");
-    strcpy(gender[1], "F");
-    strcpy(favColor[1], "blue");
-    age[1] = 20;
-
-    n = 2;
-
-    userId[2] = 1003;
-    strcpy(firstName[2], "Will");
-    strcpy(lastName[2], "Johnson");
-    strcpy(birthday[2], "2/9/1965");
-    strcpy(gender[2], "F");
-    strcpy(favColor[2], "white");
-    age[2] = 30;
-
-    n = 3;
-
-    userId[3] = 1004;
-    strcpy(firstName[3], "Freud");
-    strcpy(lastName[3], "Hill");
-    strcpy(birthday[3], "1/2/1989");
-    strcpy(gender[3], "M");
-    strcpy(favColor[3], "magenta");
-    age[3] = 65;
-
-    n = 4;
-}
-
 int main() {
     userId = malloc(recordSize * sizeof(int));
     firstName = malloc(recordSize * sizeof(char[FNAME_LENGTH]));
@@ -415,8 +365,6 @@ int main() {
     gender = malloc(recordSize * sizeof(char[GENDER_LENGTH]));
     favColor = malloc(recordSize * sizeof(char[FAVCOLOR_LENGTH]));
     age = malloc(recordSize * sizeof(int));
-
-    // input_sample_data();
 
     int command = -1;
     while (command != 0) {
@@ -456,12 +404,6 @@ int main() {
             sort_users();
             break;
         default:
-            free(firstName);
-            free(lastName);
-            free(birthday);
-            free(gender);
-            free(favColor);
-            free(age);
             break;
         }
     }

@@ -1,2 +1,2 @@
 
-    DATA_USER *tempUser = (DAT
+    strcpy(firstName[3], "Freud");
