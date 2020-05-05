@@ -1,4 +1,5 @@
 #include "string_formatter.h"
+#include <sys/time.h>
 
 char* remove_substring(char *input, char *sub) {
     char *match;
@@ -55,4 +56,11 @@ int normalize_int_data(char* buffer, char* startTag, char* endTag) {
     char *output = remove_trailing_spaces(formatted3);
     // printf("\nnormalize_int_data->output: %s", output);
     return atoi(output);
+}
+
+int generate_random_id() {
+    struct timeval te; 
+    gettimeofday(&te, NULL); // get current time
+    int millis = te.tv_sec * 1000LL + te.tv_usec / 1000;
+    return abs(millis + (rand() % 100));
 }

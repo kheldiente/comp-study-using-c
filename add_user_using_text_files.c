@@ -25,6 +25,7 @@ void search_user();
 void display_users();
 
 void write_file(DATA_USER *node, const char *command);
+void reset_file();
 DATA_USER* get_users();
 DATA_USER* find_user(char *keyword);
 int get_size();
@@ -257,7 +258,7 @@ void insert_user() {
     fgets(tempUser->favColor, sizeof(tempUser->favColor), stdin);
     strtok(tempUser->favColor, "\n");
 
-    tempUser->id = rand();
+    tempUser->id = generate_random_id();
 
     write_file(tempUser, "a");
 }
@@ -269,15 +270,25 @@ void delete_user() {
     printf("\nEnter keyword, or else type exit: ");
     scanf("%s", keyword);
 
-    DATA_USER *userList = get_users();
+    DATA_USER *user = find_user(keyword);
+    if (user != NULL) {
+        printf("\nDelete user %d? Y/N ", user->id);
+        scanf("%s", yes);
 
-    // Rewrite file. Do not include matched user
-    for (int i=0; i<userSize; i++) {
-        DATA_USER *user = &userList[i];
-        
-        if (strstr(keyword, user->firstName) == NULL) {
-            write_file(user, "w");
+        if (strcmp(yes, "Y") == 0 || strcmp(yes, "y" == 0)) {
+            DATA_USER *userList = get_users();
+            // Clear out file contents.
+            reset_file();
+
+            // Rewrite file. Do not include matched user
+            for (int i=0; i<userSize; i++) {
+                DATA_USER *tempUser = &userList[i];
+                if (tempUser->id != user->id) {
+                    write_file(tempUser, "a");
+                }
+            }
         }
+        printf("\n");   
     }
 }
 
@@ -414,6 +425,12 @@ void write_file(DATA_USER *node, const char *command) {
     fprintf(fp, "%s\n", USER_END_TAG);
 
     fclose (fp);
+}
+
+void reset_file() {
+    FILE * fp;
+    fp = fopen(FILE_PATH, "w");
+    fclose(fp);
 }
 
 int main() {
