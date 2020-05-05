@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "user_define.h"
 #include "string_formatter.h"
+
 #define FILE_PATH "./user-file.bin"
 
 struct User {
@@ -31,10 +32,10 @@ int sorted_char_binary_search(DATA_USER *users, char *element);
 DATA_USER* bubble_sort_and_bsearch_char(char *keyword);
 
 void write_file(DATA_USER *node, const char *command) {
-    FILE * fp;
+    FILE *fp;
     fp = fopen(FILE_PATH, command);
     if (fp != NULL) {
-        fwrite(node, sizeof(node), MAX_USERS, fp);
+        fwrite(node, sizeof(DATA_USER), 1, fp);
     }
     fclose(fp);
 }
@@ -53,22 +54,34 @@ void search_user() {
 
 void display_users() {
     FILE * fp;
-    DATA_USER *tempUser = (DATA_USER *) malloc(sizeof(DATA_USER));
+    DATA_USER userList[MAX_USERS];
+    DATA_USER *user;
 
     fp = fopen(FILE_PATH, "rb");
     if (fp != NULL) {
-        fread(tempUser, sizeof(tempUser) * MAX_USERS, 1, fp);
+        fread(userList, sizeof(userList), MAX_USERS, fp);
+    }
+    
+    int userId = generate_random_id();
+    int index = 0;
+    while (userId > 0) {
+        user = &userList[index];
+        userId = user->id;
+
+        if (userId > 0) {
+            printf("\nUser id: %d", user->id);  
+            printf("\nFirst name: %s", user->firstName);
+            printf("\nLast name: %s", user->lastName);
+            printf("\nBirthday (e.g: 05/02/1992): %s", user->birthday);
+            printf("\nAge: %d", user->age);
+            printf("\nGender (M/F): %s", user->gender);
+            printf("\nFavorite color (eg: blue, yellow, midnight blue, etc.): %s", user->favColor);
+        }
+
+        index++;
     }
 
-    DATA_USER *firstUser = tempUser;
-
-    
-    printf("\nFirst name: %s", tempUser->firstName);
-    printf("\nLast name: %s", tempUser->lastName);
-    printf("\nBirthday (e.g: 05/02/1992): %s", tempUser->birthday);
-    // printf("\nAge: %s", tempUser->age);
-    printf("\nGender (M/F): %s", tempUser->gender);
-    printf("\nFavorite color (eg: blue, yellow, midnight blue, etc.): %s", tempUser->favColor);
+    userSize = index + 1;
     fclose (fp);
 }
 
@@ -99,7 +112,7 @@ void insert_user() {
     fgets(tempUser->favColor, sizeof(tempUser->favColor), stdin);
     strtok(tempUser->favColor, "\n");
 
-    tempUser->id = rand();
+    tempUser->id = generate_random_id();
 
     write_file(tempUser, "ab");
 }

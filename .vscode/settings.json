@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "string_formatter.h": "c",
-        "__locale": "c"
+        "__locale": "c",
+        "__node_handle": "c"
     }
 }
