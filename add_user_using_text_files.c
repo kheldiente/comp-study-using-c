@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "user_define.h"
 #include "string_formatter.h"
 
@@ -27,57 +28,139 @@ void write_file(DATA_USER *node, const char *command);
 DATA_USER* get_users();
 DATA_USER* find_user(char *keyword);
 int get_size();
-int sorted_char_binary_search(DATA_USER *users, char *element);
-DATA_USER* bubble_sort_and_bsearch_char(char *keyword);
 
-int sorted_char_binary_search(DATA_USER *users, char *element) {
+int sorted_char_binary_search(char *arr, int length, int size, char *element) {
     int start = 0;
     int mid = 0;
-    int end = userSize -1;
-    char tempFname[FNAME_LENGTH];
-    char tempLname[LNAME_LENGTH];
-    char tempBday[BDAY_LENGTH];
-    char tempGender[GENDER_LENGTH];
-    char tempFavColor[FAVCOLOR_LENGTH];
+    int end = size -1;
+    char tempValue[length];
 
-    DATA_USER *tempUser = (DATA_USER *) malloc(sizeof(DATA_USER));
-
+    strtok(element, "\n");
     while (start <= end) {
-        mid = (start + end) / 2;
-        DATA_USER tempUser = users[mid * userSize];
-        strcpy(tempFname, tempUser.firstName);
-        strcpy(tempLname, tempUser.lastName);
-        strcpy(tempBday, tempUser.birthday);
-        strcpy(tempGender, tempUser.gender);
-        strcpy(tempFavColor, tempUser.favColor);
+        mid = ceil((start + end) / 2);
+        memcpy(tempValue, arr + (mid * length), length);
+        strtok(tempValue, "\n");
 
-        int resFname = strcmp(tempFname, element);
-        int resLname = strcmp(tempLname, element);
-        int resBday = strcmp(tempBday, element);
-        int resGender = strcmp(tempGender, element);
-        int resFavColor = strcmp(tempFavColor, element);
-
-        if (resFname == 0
-        || resLname == 0
-        || resBday == 0
-        || resGender == 0
-        || resFavColor == 0) {
+        int result = strcmp(tempValue, element);
+        // printf("\nsorted_char_binary_seawrch BEFORE start: %d, mid: %d, end: %d, result: %d", start, mid, end, result);
+        // printf("\nsorted_char_binary_search BEFORE evaulting: %s, keyword: %s, size: %d", tempValue, element, size);
+        if (result == 0) {
             return mid;
-        } else if (resFname > 0
-        || resLname > 0
-        || resBday > 0
-        || resGender > 0
-        || resFavColor > 0) {
+        } else if (result > 0) {
             end = mid - 1;
         } else {
             start = mid + 1;
         }
+        // printf("\nsorted_char_binary_seawrch AFTER start: %d, mid: %d, end: %d", start, mid, end);
+        // printf("\nsorted_char_binary_search AFTER evaluating: %s, keyword: %s, size: %d", tempValue, element, size);
     }
     return -1;
 }
 
+int bubble_sort_and_bsearch_char(char *arr, int length, int n, char *keyword) {
+    char *tempArr = malloc(n * sizeof(char[length]));
+    int tempIndexArr[n];
+    char tempString[length]; 
+    char prevString[length];
+    char currString[length];
+    int tempIndex = -1;
+
+    char compPrevString[length];
+    char compCurrString[length];
+    int j = 0;
+
+    memcpy(tempArr, arr, n * length);
+    for (int x=0;x<n;x++) {
+        tempIndexArr[x] = x;
+        // printf("\nsorted index BEFORE: %d", tempIndexArr[x]);
+    }
+    
+    while(j != (n - 1)) {
+        for (int i=j+1;i<n;i++) { 
+            strcpy(prevString, tempArr + (j * length));
+            strcpy(currString, tempArr + (i * length));
+
+            strcpy(compPrevString, prevString);
+            strcpy(compCurrString, currString);
+            strtok(compPrevString, "\n");
+            strtok(compCurrString, "\n");
+
+            if (strcmp(compPrevString, compCurrString) > 0) {
+                // Swap char array
+                strcpy(tempString, prevString); 
+                strcpy(tempArr + (j * length), currString); 
+                strcpy(tempArr + (i * length), tempString);
+
+                // Swap indices
+                tempIndex = tempIndexArr[j];
+                tempIndexArr[j] = tempIndexArr[i];
+                tempIndexArr[i] = tempIndex; 
+            }
+        }
+        j++;
+    }
+    int foundIndex = sorted_char_binary_search(tempArr, length, n, keyword);
+    // for (int x=0;x<n;x++) {
+    //     printf("\nsorted index AFTER: %d", tempIndexArr[x]);
+    // }
+    // printf("\nfoundIndex: %d", foundIndex);
+    if (foundIndex != -1) {
+        int origIndex = tempIndexArr[foundIndex];
+        return origIndex;    
+    }
+    return -1;   
+}
+
 DATA_USER* find_user(char *keyword) {
-    return bubble_sort_and_bsearch_char(keyword);
+    DATA_USER *tempUserList = get_users();
+
+    int tempUserSize = userSize;
+    if (tempUserSize == 0) {
+        tempUserSize = get_size();
+    }
+
+    char (*tempFname)[FNAME_LENGTH];
+    char (*tempLname)[LNAME_LENGTH];
+    char (*tempGender)[GENDER_LENGTH];
+    int *tempAge;
+
+    char prevFname[FNAME_LENGTH];
+    char prevLname[LNAME_LENGTH];
+    char prevGender[GENDER_LENGTH];
+    int prevAge;
+
+    tempFname = malloc(tempUserSize * sizeof(char[FNAME_LENGTH]));
+    tempLname = malloc(tempUserSize * sizeof(char[LNAME_LENGTH]));
+    tempGender = malloc(tempUserSize * sizeof(char[GENDER_LENGTH]));
+    tempAge = malloc(tempUserSize * sizeof(int));
+
+    // Original indices
+    for(int x=0;x<tempUserSize;x++) {
+        strcpy(tempFname[x], tempUserList[x].firstName);
+        strcpy(tempLname[x], tempUserList[x].lastName);
+        strcpy(tempGender[x], tempUserList[x].gender);
+        tempAge[x] = tempUserList[x].age;
+        // printf("\nsorted index: %s", tempFname[x]);
+    }
+
+    int foundIndex = -1;
+    if (foundIndex == -1) {
+        foundIndex = bubble_sort_and_bsearch_char(tempFname, FNAME_LENGTH, tempUserSize, keyword);
+    }
+
+    if (foundIndex == -1) {
+        foundIndex = bubble_sort_and_bsearch_char(tempLname, LNAME_LENGTH, tempUserSize, keyword);
+    }
+
+    if (foundIndex == -1) {
+        foundIndex = bubble_sort_and_bsearch_char(tempGender, GENDER_LENGTH, tempUserSize, keyword);
+    }
+
+    // printf("\nfoundIndex: %d", foundIndex);
+    if (foundIndex != -1) {
+        return &tempUserList[foundIndex];
+    }
+    return NULL;
 }
 
 int get_size() {
@@ -299,50 +382,6 @@ void display_users() {
         }
     }
     fclose(filePointer);
-}
-
-// bubble sort using first and last name
-DATA_USER* bubble_sort_and_bsearch_char(char *keyword) {
-    DATA_USER *tempUserList = get_users();
-
-    int tempIndex = -1;
-    int tempUserSize = userSize;
-    if (tempUserSize == 0) {
-        tempUserSize = get_size();
-    }
-
-    int tempIndexArr[tempUserSize];
-    char prevFullName[LNAME_LENGTH + FNAME_LENGTH];
-    char fullName[LNAME_LENGTH + FNAME_LENGTH];
-    int j = 0;
-
-    // Original indices
-    for(int x=0;x<tempUserSize;x++) {
-        tempIndexArr[x] = x + 1;
-    }
-
-    while (j != (tempUserSize - 1)) {
-        for (int i=j+1;i<tempUserSize;i++) {
-            strcpy(prevFullName, tempUserList[j].lastName);
-            strcat(prevFullName, tempUserList[j].firstName);
-            strcpy(fullName, tempUserList[i].lastName);
-            strcat(fullName, tempUserList[i].firstName);
-
-            if (strcmp(prevFullName, fullName) > 0) {
-                // Swap
-                tempIndex = j;
-                tempIndexArr[j] = i;
-                tempIndexArr[i] = tempIndex;
-            }
-        } 
-        j++;
-    }
-    int foundIndex = sorted_char_binary_search(tempUserList, keyword);
-    if (foundIndex != -1) {
-        int origIndex = tempIndexArr[foundIndex];
-        return &tempUserList[origIndex];
-    }
-    return NULL;
 }
 
 void write_file(DATA_USER *node, const char *command) {
