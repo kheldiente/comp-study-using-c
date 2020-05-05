@@ -6,7 +6,6 @@
 #define BDAY_LENGTH 9
 #define GENDER_LENGTH 2
 #define FAVCOLOR_LENGTH 15
-#define LEN(arr) ((int) (sizeof(arr) / sizeof (arr)[0]))
 
 size_t recordSize = 3;
 
