@@ -25,6 +25,7 @@ void search_user();
 void display_users();
 
 void write_file(DATA_USER *node, const char *command);
+void write_file2(DATA_USER *node, FILE *fp);
 void reset_file();
 DATA_USER* get_users();
 DATA_USER* find_user(char *keyword);
@@ -281,12 +282,19 @@ void delete_user() {
             reset_file();
 
             // Rewrite file. Do not include matched user
+            FILE *fp;
+            fp = fopen(FILE_PATH, "a");
+
+            int userId = user->id;
             for (int i=0; i<userSize; i++) {
                 DATA_USER *tempUser = &userList[i];
-                if (tempUser->id != user->id) {
-                    write_file(tempUser, "a");
+                if (tempUser->id != userId) {
+                    write_file2(tempUser, fp);
                 }
             }
+
+            fclose(fp);
+            printf("Deleted user with id: %d", userId);
         }
         printf("\n");   
     }
@@ -324,6 +332,9 @@ void update_user() {
                 reset_file();
 
                 // Rewrite file. Updated attribute for matched user.
+                FILE *fp;
+                fp = fopen(FILE_PATH, "a");
+
                 for (int i=0; i<userSize; i++) {
                     DATA_USER *tempUser = &userList[i];
                     // printf("\nupdate_user writing -> id: %d, matchedUserId: %d", matchedUserId, tempUser->id);
@@ -340,8 +351,10 @@ void update_user() {
                             strcpy(tempUser->favColor, value);
                         }
                     }
-                    write_file(tempUser, "a");
+                    write_file2(tempUser, fp);
                 }
+
+                fclose(fp);
             }
         }
     }
@@ -455,10 +468,15 @@ void sort_users() {
     reset_file();
 
     // Rewrite file with the new sequence
+    FILE *fp;
+    fp = fopen(FILE_PATH, "a");
+
     for (int i=0; i<tempUserSize; i++) {
         DATA_USER *user = &tempUserList[i];
-        write_file(user, "a");
+        write_file2(user, fp);
     }
+
+    fclose(fp);
 }
 
 void write_file(DATA_USER *node, const char *command) {
@@ -476,6 +494,18 @@ void write_file(DATA_USER *node, const char *command) {
     fprintf(fp, "%s\n", USER_END_TAG);
 
     fclose (fp);
+}
+
+void write_file2(DATA_USER *node, FILE *fp) {
+    fprintf(fp, "%s\n", USER_START_TAG);
+    fprintf(fp, "   %s%d%s\n", ID_START_TAG, node->id, ID_END_TAG);
+    fprintf(fp, "   %s%s%s\n", FIRST_NAME_START_TAG, node->firstName, FIRST_NAME_END_TAG);
+    fprintf(fp, "   %s%s%s\n", LAST_NAME_START_TAG, node->lastName, LAST_NAME_END_TAG);
+    fprintf(fp, "   %s%s%s\n", BDAY_START_TAG, node->birthday, BDAY_START_TAG);
+    fprintf(fp, "   %s%d%s\n", AGE_START_TAG, node->age, AGE_END_TAG);
+    fprintf(fp, "   %s%s%s\n", GENDER_START_TAG, node->gender, GENDER_END_TAG);
+    fprintf(fp, "   %s%s%s\n", FAVCOLOR_START_TAG, node->favColor, FAVCOLOR_END_TAG);
+    fprintf(fp, "%s\n", USER_END_TAG);
 }
 
 void reset_file() {
