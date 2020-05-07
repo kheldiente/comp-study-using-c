@@ -143,6 +143,26 @@ DATA_USER* find_user(char *keyword) {
 }
 
 void sort_users() {
+    DATA_USER tempUser;
+    char prevFullName[LNAME_LENGTH + FNAME_LENGTH];
+    char fullName[LNAME_LENGTH + FNAME_LENGTH];
+    for(int i=0; i<=currentCol;i++){
+        for(int j=0; j<=currentRow;j++) {
+            strcpy(prevFullName, userTable[j][i].lastName);
+            strcat(prevFullName, userTable[j][i].firstName);
+            strcpy(fullName, userTable[j + 1][i].lastName);
+            strcat(fullName, userTable[j + 1][i].firstName);
+            
+            if (userTable[j][i].isValid) {
+                printf("\nsort_users prevString: %s, currString: %s", prevFullName, fullName);
+                if (strcmp(prevFullName, fullName) > 0) {
+                    tempUser = userTable[j][i];
+                    userTable[j][i] = userTable[j+1][i];
+                    userTable[j+1][i] = tempUser;
+                }
+            }
+        }
+    }
 }
 
 void display_user(DATA_USER *user) {
