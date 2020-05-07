@@ -11,6 +11,7 @@ struct User {
     char gender[GENDER_LENGTH];
     char favColor[FAVCOLOR_LENGTH];
     int age;
+    int isValid;
 };
 
 struct CharHolder {
@@ -82,7 +83,7 @@ DATA_USER* bubble_sort_and_bsearch_char(DATA_CHAR arr[MAX_USERS_ROW][MAX_USER_CO
             strcpy(currString, arr[j + 1][i].value);
             
             if (strcmp(prevString, "") != 0 && strcmp(currString, "") != 0) {
-                printf("\nbubble_sort prevString: %s, currString: %s", prevString, currString);
+                // printf("\nbubble_sort prevString: %s, currString: %s", prevString, currString);
                 if (strcmp(prevString, currString) > 0) {
                     strcpy(tempString, arr[j][i].value);
                     strcpy(arr[j][i].value, arr[j+1][i].value);
@@ -119,7 +120,7 @@ DATA_USER* find_user(char *keyword) {
     for (int col=0;col<=currentCol;col++) {
         for (int row=0;row<=currentRow;row++) {
             DATA_USER user = userTable[row][col];
-            if (user.id != 0) {
+            if (user.isValid == 1) {
                 strcpy(tempFname[row][col].value, user.firstName);
                 strcpy(tempLname[row][col].value, user.lastName);
                 strcpy(tempGender[row][col].value, user.gender);
@@ -158,7 +159,7 @@ void display_users() {
     for (int col=0;col<=currentCol;col++) {
         for (int row=0;row<=currentRow;row++) {
             DATA_USER user = userTable[row][col];
-            if (user.id != 0) {
+            if (user.isValid == 1) {
                 printf("\ndisplay_users row: %d, col: %d", row, col);
                 display_user(&user);
             }
@@ -212,6 +213,7 @@ void add_user() {
     strtok(tempUser.favColor, "\n");
 
     tempUser.id = generate_random_id();
+    tempUser.isValid = 1;
     
     if (currentRow < MAX_USERS_ROW) {
         if (currentCol < MAX_USER_COL) {
@@ -239,13 +241,72 @@ void delete_user() {
         scanf("%s", yes);
 
         if (strcmp(yes, "Y") == 0 || strcmp(yes, "y" == 0)) {
+            for (int col=0;col<=currentCol;col++) {
+                for (int row=0;row<=currentRow;row++) {
+                    DATA_USER tempUser = userTable[row][col];
+                    if (tempUser.isValid == 1) {
+                        if (tempUser.id == user->id) {
+                            userTable[row][col].isValid = 0;
+                        }
+                    }
+                }
+            }
         }
         printf("\n");   
     }
 }
 
 void update_user() {
+char keyword[30];
+    char value[30];
+    int attribute = -1;
 
+    while (strcmp(keyword, "exit") != 0) {
+        printf("\nEnter keyword to search user, or else type exit: ");
+        scanf("%s", keyword);
+
+        if (strcmp(keyword, "exit") != 0) {
+            DATA_USER *matchedUser = find_user(keyword);
+            if (matchedUser != NULL) {
+                int matchedUserId = matchedUser->id;
+                printf("\nUpdating user with id: %d", matchedUserId);
+
+                printf("\nAttribute number");
+                printf("\n 1 - First name");
+                printf("\n 2 - Last name");
+                printf("\n 3 - Birthday (eg: 05/02/1992");
+                printf("\n 4 - Gender (M/F)");
+                printf("\n 5 - Favorite color (eg: blue, yellow, midnight blue, etc.)");
+
+                printf("\nEnter attribute number: ");
+                scanf("%d", &attribute);
+                printf("\nEnter new value: ");
+                scanf("%s", value);
+
+                for (int col=0;col<=currentCol;col++) {
+                    for (int row=0;row<=currentRow;row++) {
+                        DATA_USER tempUser = userTable[row][col];
+                        if (tempUser.isValid == 1) {
+                            if (matchedUserId == tempUser.id) {
+                                if (attribute == 1) {
+                                    strcpy(tempUser.firstName, value);
+                                } else if (attribute == 2) {
+                                    strcpy(tempUser.lastName, value);
+                                } else if (attribute == 3) {
+                                    strcpy(tempUser.birthday, value);
+                                } else if (attribute == 4) {
+                                    strcpy(tempUser.gender, value);
+                                } else if (attribute == 5) {
+                                    strcpy(tempUser.favColor, value);
+                                }
+                                userTable[row][col] = tempUser;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 int main() {
