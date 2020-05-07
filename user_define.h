@@ -3,7 +3,10 @@
 #define BDAY_LENGTH 9
 #define GENDER_LENGTH 2
 #define FAVCOLOR_LENGTH 15
+#define CHAR_HOLDER_VALUE_LENGTH 30
 #define MAX_USERS 100
+#define MAX_USERS_ROW 10
+#define MAX_USER_COL 10
 
 #define USER_START_TAG "<user>"
 #define USER_END_TAG "</user>"
